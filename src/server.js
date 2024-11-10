@@ -10,6 +10,7 @@ require("dotenv").config();
 // Import routes
 const authRoutes = require("./routes/auth.routes");
 const userRoutes = require("./routes/user.routes");
+const questionRoutes = require("./routes/question.routes");
 
 const app = express();
 
@@ -26,6 +27,7 @@ app.get("/health", (req, res) => {
 // Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
+app.use("/api/questions", questionRoutes);
 
 // Global error handling middleware
 app.use((err, req, res, next) => {
