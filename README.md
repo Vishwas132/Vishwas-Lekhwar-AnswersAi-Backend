@@ -51,20 +51,20 @@ answersai-backend/
    docker-compose build
    ```
 
-5. Set up your PostgreSQL database
+5. Start the services:
 
-   - Create the database:
+   ```bash
+   docker-compose up --build
+   ```
 
-     ```bash
-     docker exec -it answersai-backend-db-1 psql -U postgres -d answersai_dev -c "CREATE DATABASE IF NOT EXISTS answersai_dev;"
-     ```
+6. Set up your PostgreSQL database
 
    - Create the database schema:
      ```bash
      docker exec -it answersai-backend-db-1 psql -U postgres -d answersai_dev -c "CREATE SCHEMA IF NOT EXISTS answersai_dev;"
      ```
 
-6. Start the services:
+7. Close the Docker container from terminal and start it again:
    ```bash
    docker-compose up --build
    ```
