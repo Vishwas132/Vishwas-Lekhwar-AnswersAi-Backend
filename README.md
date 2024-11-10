@@ -4,21 +4,37 @@ A secure and scalable backend service built with Node.js, Express.js, and Postgr
 
 ## Features
 
-- RESTful API with Express.js
+- RESTful API endpoints for user and question management
+- User authentication and authorization using JWT
 - PostgreSQL database with Sequelize ORM
-- JWT-based authentication
-- OpenAI integration via Langchain
+- AI-powered question answering (OpenAI/Anthropic integration)
+- Secure user registration and login flow
 - Docker containerization
-- Rate limiting
-- Error handling
-- API documentation
+- Comprehensive error handling
+- Unit testing with Jest
 
 ## Prerequisites
 
 - Node.js 18+
 - PostgreSQL 14+
 - Docker and Docker Compose (optional)
-- OpenAI API key
+- Anthropic API key
+
+## Project Structure
+
+```
+answersai-backend/
+├── src/
+│   ├── config/           # Database and configuration files
+│   ├── middleware/       # Authentication and request middleware
+│   ├── migrations/       # Database migration scripts
+│   ├── models/           # Sequelize database models
+│   ├── routes/           # API route definitions
+│   └── server.js         # Main application entry point
+├── tests/                # Unit and integration tests
+├── Dockerfile            # Docker configuration
+└── docker-compose.yml    # Multi-container Docker setup
+```
 
 ## Quick Start with Docker
 
@@ -27,10 +43,30 @@ A secure and scalable backend service built with Node.js, Express.js, and Postgr
    ```bash
    cp .env.example .env
    ```
-3. Update the `.env` file with your OpenAI API key and other configurations
-4. Start the services:
+3. Update the `.env` file with your Anthropic API key and other configurations
+
+4. Build the Docker image:
+
    ```bash
-   docker-compose up
+   docker-compose build
+   ```
+
+5. Set up your PostgreSQL database
+
+   - Create the database:
+
+     ```bash
+     docker exec -it answersai-backend-db-1 psql -U postgres -d answersai_dev -c "CREATE DATABASE IF NOT EXISTS answersai_dev;"
+     ```
+
+   - Create the database schema:
+     ```bash
+     docker exec -it answersai-backend-db-1 psql -U postgres -d answersai_dev -c "CREATE SCHEMA IF NOT EXISTS answersai_dev;"
+     ```
+
+6. Start the services:
+   ```bash
+   docker-compose up --build
    ```
 
 The API will be available at `http://localhost:3000`
@@ -45,24 +81,30 @@ The API will be available at `http://localhost:3000`
 
 2. Set up your PostgreSQL database
 
+   - Create the database using pgAdmin:
+     - Create a new database with the name `answersai_dev`
+     - Create a new schema with the name `answersai_dev` inside the `answersai_dev` database
+
 3. Configure environment variables in `.env`:
 
    ```
    PORT=3000
    NODE_ENV=development
 
-   # Database
+   # Database Configuration
    DB_USERNAME=postgres
    DB_PASSWORD=postgres
    DB_NAME=answersai_dev
    DB_HOST=localhost
 
-   # JWT
+   # JWT Configuration
    JWT_SECRET=your-super-secret-jwt-key
    JWT_REFRESH_SECRET=your-super-secret-refresh-key
 
-   # OpenAI
+   # AI Service Configuration
    OPENAI_API_KEY=your-openai-api-key
+   # Or
+   ANTHROPIC_API_KEY=your-anthropic-api-key
    ```
 
 4. Run database migrations:
@@ -81,149 +123,80 @@ The API will be available at `http://localhost:3000`
    npm start
    ```
 
-## API Documentation
+## API Endpoints
 
-### Authentication Endpoints
+### Authentication Flow
 
-#### POST /api/auth/login
+1. Register a user: `POST /api/users`
+2. Login: `POST /api/auth/login`
+3. Ask a question: `POST /api/questions` (with JWT token)
 
-Login with email and password
+### Detailed Endpoint Documentation
 
-```json
-{
-  "email": "user@example.com",
-  "password": "password123"
-}
-```
+#### Authentication Endpoints
 
-#### POST /api/auth/refresh
+- `POST /api/auth/login`: User login
+- `POST /api/auth/logout`: User logout
+- `POST /api/auth/refresh`: Refresh access token
 
-Refresh access token
+#### User Endpoints
 
-```json
-{
-  "refreshToken": "your-refresh-token"
-}
-```
+- `POST /api/users`: Create new user
+- `GET /api/users/:userId`: Get user profile
+- `GET /api/users/:userId/questions`: Get user's questions
 
-#### POST /api/auth/logout
+#### Question Endpoints
 
-Logout (client-side token removal)
+- `POST /api/questions`: Create question and get AI answer
+- `GET /api/questions/:questionId`: Retrieve specific question
 
-### User Endpoints
+## Security Measures
 
-#### POST /api/users
-
-Create new user
-
-```json
-{
-  "email": "user@example.com",
-  "password": "password123"
-}
-```
-
-#### GET /api/users/:userId
-
-Get user profile (requires authentication)
-
-#### GET /api/users/:userId/questions
-
-Get user's questions (requires authentication)
-
-### Question Endpoints
-
-#### POST /api/questions
-
-Create question and get AI answer (requires authentication)
-
-```json
-{
-  "content": "What is the capital of France?"
-}
-```
-
-#### GET /api/questions/:questionId
-
-Get specific question (requires authentication)
-
-## Architecture Design
-
-### Database Design
-
-- PostgreSQL for ACID compliance and data integrity
-- Efficient indexing on frequently queried fields
-- Connection pooling for optimal resource utilization
-- Foreign key constraints for data relationships
-
-### Authentication
-
-- JWT-based stateless authentication
-- Access tokens (1h expiry) and refresh tokens (7d expiry)
-- Secure password hashing with bcrypt
-
-### Scalability Solution
-
-To handle hundreds of thousands of concurrent users:
-
-1. **Load Balancing**
-
-   - Multiple application instances behind a load balancer
-   - Sticky sessions not required due to stateless JWT auth
-
-2. **Database Scaling**
-
-   - Read replicas for distributing read operations
-   - Connection pooling to manage database connections
-   - Table partitioning for large datasets
-   - Proper indexing for query optimization
-
-3. **AI Service Integration**
-
-   - Asynchronous processing
-   - Request queuing for high load periods
-   - Caching common responses
-   - Rate limiting per user
-   - Retry mechanism with exponential backoff
-
-4. **Caching Strategy**
-
-   - Redis for caching frequent queries
-   - Cache invalidation on data updates
-   - Distributed caching for scalability
-
-5. **High Availability**
-   - Multiple availability zones
-   - Automated failover
-   - Health checks and auto-recovery
-
-### Security Measures
-
-- Rate limiting to prevent abuse
+- JWT-based authentication
+- Password hashing with bcrypt
 - Input validation and sanitization
-- SQL injection prevention through ORM
-- XSS protection
-- CORS configuration
-- Secure headers
+- Rate limiting
+- Protection against common web vulnerabilities
+- Secure environment configuration
 
-## Error Handling
+## Scalability Considerations
 
-The application implements centralized error handling with:
+### Database
 
-- Appropriate HTTP status codes
-- Consistent error response format
-- Detailed logging for debugging
-- Graceful error recovery
+- PostgreSQL with connection pooling
+- Efficient indexing
+- Potential for read replicas
+- Table partitioning support
+
+### AI Integration
+
+- Asynchronous processing
+- Request queuing
+- Response caching
+- Rate limiting
+- Retry mechanism with exponential backoff
+
+### Infrastructure
+
+- Stateless JWT authentication
+- Horizontal scaling capability
+- Load balancer compatibility
+- Containerized deployment
 
 ## Testing
 
-Run the test suite:
+Run the comprehensive test suite:
 
 ```bash
 npm test
 ```
 
-## Deployment
+Tests cover:
+
+- Middleware authentication
+- Route handlers
+
+## Deployment Strategies
 
 ### Docker Deployment
 
@@ -235,15 +208,18 @@ docker-compose up --build
 docker-compose up -d
 ```
 
-### Production Considerations
+### Production Recommendations
 
-- Use production-grade PostgreSQL instance
-- Configure proper logging
+- Use managed PostgreSQL service
+- Implement robust logging
 - Set up monitoring and alerting
-- Use SSL/TLS
+- Configure SSL/TLS
 - Regular database backups
-- CI/CD pipeline integration
+- Implement CI/CD pipeline
 
-## License
+## Troubleshooting
 
-ISC
+- Ensure all environment variables are correctly set
+- Check database connection parameters
+- Verify API key for AI service
+- Review Docker and docker-compose configurations

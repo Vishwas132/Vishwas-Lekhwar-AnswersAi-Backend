@@ -4,14 +4,6 @@ const { Question } = require("../models");
 const authMiddleware = require("../middleware/auth.middleware");
 const router = express.Router();
 
-// Initialize Claude 3 Haiku with Langchain
-const model = new ChatAnthropic({
-  anthropicApiKey: process.env.ANTHROPIC_API_KEY,
-  temperature: 0.7,
-  maxTokens: 500,
-  modelName: "claude-3-haiku-20240307",
-});
-
 // Rate limiting helper (simple in-memory implementation)
 // For production, use Redis or similar for distributed rate limiting
 const rateLimiter = {
@@ -64,6 +56,13 @@ router.post("/", authMiddleware, async (req, res) => {
     const startTime = Date.now();
 
     try {
+      // Initialize Claude 3 Haiku with Langchain
+      const model = new ChatAnthropic({
+        anthropicApiKey: process.env.ANTHROPIC_API_KEY,
+        temperature: 0.7,
+        maxTokens: 500,
+        modelName: "claude-3-haiku-20240307",
+      });
       // Get AI response
       const aiResponse = await model.invoke([
         {
