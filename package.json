@@ -7,12 +7,14 @@
     "start": "node src/server.js",
     "dev": "nodemon src/server.js",
     "test": "jest",
-    "migrate": "sequelize db:migrate",
-    "seed": "sequelize db:seed:all"
+    "migrate": "sequelize-cli db:migrate",
+    "migrate:undo": "sequelize-cli db:migrate:undo",
+    "migrate:undo:all": "sequelize-cli db:migrate:undo:all"
   },
   "author": "Vishwas Lekhwar",
   "license": "ISC",
   "dependencies": {
+    "@langchain/anthropic": "^0.3.7",
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",
@@ -23,7 +25,8 @@
     "openai": "^4.12.4",
     "pg": "^8.11.3",
     "pg-hstore": "^2.3.4",
-    "sequelize": "^6.33.0"
+    "sequelize": "^6.33.0",
+    "umzug": "^3.8.2"
   },
   "devDependencies": {
     "jest": "^29.7.0",
