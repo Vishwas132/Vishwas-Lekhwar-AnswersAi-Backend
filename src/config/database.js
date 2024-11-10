@@ -19,7 +19,7 @@ module.exports = {
   test: {
     dbUrl:
       process.env.DATABASE_URL ||
-      "postgres://testuser:testpassword@localhost:5432/answersai_dev",
+      "postgres://postgres:postgres@localhost:5432/answersai_dev",
     schema: process.env.DB_SCHEMA || "answersai_dev",
     logging: false,
   },

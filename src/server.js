@@ -7,6 +7,10 @@ const { sequelize } = require("./models");
 const dbConfig = require("./config/database");
 require("dotenv").config();
 
+// Import routes
+const authRoutes = require("./routes/auth.routes");
+const userRoutes = require("./routes/user.routes");
+
 const app = express();
 
 // Middleware
@@ -18,6 +22,10 @@ app.use(morgan("dev"));
 app.get("/health", (req, res) => {
   res.json({ status: "ok", timestamp: new Date().toISOString() });
 });
+
+// Routes
+app.use("/api/auth", authRoutes);
+app.use("/api/users", userRoutes);
 
 // Global error handling middleware
 app.use((err, req, res, next) => {
