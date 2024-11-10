@@ -10,11 +10,8 @@ RUN npm install
 # Copy source code
 COPY . .
 
-# Create .env file from example if it doesn't exist
-COPY .env.example .env
-
 # Expose port
 EXPOSE 3000
 
 # Start the application
-CMD ["npm", "start"]
+CMD ["npm", "run", "dev"]

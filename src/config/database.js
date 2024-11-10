@@ -2,12 +2,13 @@ require("dotenv").config();
 
 module.exports = {
   development: {
-    dbUrl:
-      process.env.DATABASE_URL ||
-      (process.env.NODE_ENV === "development"
-        ? "postgres://postgres:postgres@localhost:5432/answersai_dev"
-        : null),
+    username: process.env.DB_USERNAME || "postgres",
+    password: process.env.DB_PASSWORD || "postgres",
+    database: process.env.DB_DATABASE || "answersai_dev",
+    host: process.env.DB_HOST || "localhost",
+    port: process.env.DB_PORT || 5432,
     schema: process.env.DB_SCHEMA || "answersai_dev",
+    dialect: "postgres",
     logging: false,
     pool: {
       max: 5,
@@ -15,18 +16,31 @@ module.exports = {
       acquire: 30000,
       idle: 10000,
     },
+    dialectOptions: {
+      searchPath: process.env.DB_SCHEMA || "answersai_dev",
+    },
   },
   test: {
-    dbUrl:
-      process.env.DATABASE_URL ||
-      "postgres://postgres:postgres@localhost:5432/answersai_dev",
+    username: process.env.DB_USERNAME || "postgres",
+    password: process.env.DB_PASSWORD || "postgres",
+    database: process.env.DB_DATABASE || "answersai_dev",
+    host: process.env.DB_HOST || "localhost",
+    port: process.env.DB_PORT || 5432,
     schema: process.env.DB_SCHEMA || "answersai_dev",
+    dialect: "postgres",
     logging: false,
+    dialectOptions: {
+      searchPath: process.env.DB_SCHEMA || "answersai_dev",
+    },
   },
   production: {
-    dbUrl:
-      process.env.DATABASE_URL ||
-      "postgres://postgres:postgres@localhost:5432/answersai_prod",
+    username: process.env.DB_USERNAME || "postgres",
+    password: process.env.DB_PASSWORD || "postgres",
+    database: process.env.DB_DATABASE || "answersai_prod",
+    host: process.env.DB_HOST || "localhost",
+    port: process.env.DB_PORT || 5432,
+    schema: process.env.DB_SCHEMA || "answersai_prod",
+    dialect: "postgres",
     logging: false,
     pool: {
       max: 10,
@@ -35,6 +49,7 @@ module.exports = {
       idle: 10000,
     },
     dialectOptions: {
+      searchPath: process.env.DB_SCHEMA || "answersai_prod",
       ssl: {
         require: true,
         rejectUnauthorized: false,
