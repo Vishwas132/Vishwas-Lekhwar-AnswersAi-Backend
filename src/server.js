@@ -5,6 +5,8 @@ const { Sequelize } = require("sequelize");
 const { Umzug, SequelizeStorage } = require("umzug");
 const { sequelize } = require("./models");
 const dbConfig = require("./config/database");
+const helmet = require("helmet");
+const rateLimit = require("express-rate-limit");
 require("dotenv").config();
 
 // Import routes
@@ -18,6 +20,22 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 app.use(morgan("dev"));
+app.use(helmet());
+
+// Configure rate limiting
+const limiter = rateLimit({
+  windowMs: 5 * 60 * 1000, // 5 minutes
+  max: 50, // 50 requests per windowMs
+  message: {
+    status: "error",
+    message: "Too many requests, please try again later.",
+  },
+  standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+  legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+});
+
+// Apply rate limiting to all routes
+app.use(limiter);
 
 // Health check endpoint
 app.get("/health", (req, res) => {

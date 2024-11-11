@@ -3,6 +3,10 @@ const jwt = require("jsonwebtoken");
 const { User } = require("../models");
 const bcrypt = require("bcryptjs");
 const authMiddleware = require("../middleware/auth.middleware");
+const {
+  loginValidation,
+  refreshTokenValidation,
+} = require("../middleware/validation.middleware");
 const router = express.Router();
 
 // Helper function to generate tokens
@@ -19,17 +23,9 @@ const generateTokens = (userId) => {
 };
 
 // Login route
-router.post("/login", async (req, res) => {
+router.post("/login", loginValidation, async (req, res) => {
   try {
     const { email, password } = req.body;
-
-    // Validate input
-    if (!email || !password) {
-      return res.status(400).json({
-        status: "error",
-        message: "Email and password are required",
-      });
-    }
 
     // Find user
     const user = await User.findOne({ where: { email } });
@@ -72,16 +68,9 @@ router.post("/login", async (req, res) => {
 });
 
 // Refresh token route
-router.post("/refresh", async (req, res) => {
+router.post("/refresh", refreshTokenValidation, async (req, res) => {
   try {
     const { refreshToken } = req.body;
-
-    if (!refreshToken) {
-      return res.status(400).json({
-        status: "error",
-        message: "Refresh token required",
-      });
-    }
 
     // Verify refresh token
     const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
