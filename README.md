@@ -54,14 +54,47 @@ answersai-backend/
 
 1. Clone the repository
 2. Copy the example environment file:
+
    ```bash
    cp .env.example .env
    ```
-3. Update the `.env` file with your Anthropic API key and other configurations
+
+3. Configure environment variables in `.env`:
+
+   ```
+   NODE_ENV=development
+
+   # Database Configuration
+   DB_USERNAME=postgres
+   DB_PASSWORD=postgres
+   DB_DATABASE=answersai_dev
+   DB_HOST=db
+   DB_PORT=5432
+   DB_SCHEMA=answersai_dev
+
+   # JWT Configuration
+   JWT_SECRET=your-super-secret-jwt-key
+   JWT_REFRESH_SECRET=your-super-secret-refresh-key
+
+   # AI Service Configuration
+   ANTHROPIC_API_KEY=your-anthropic-api-key
+   ```
 
 4. Start the development environment:
+
    ```bash
    docker-compose -f docker-compose.dev.yml up --build
+   ```
+
+5. Run command in new terminal to create schema:
+
+   ```bash
+   docker exec -it answersai-backend-db-1 psql -U postgres -d answersai_dev -c "CREATE SCHEMA IF NOT EXISTS answersai_dev;"
+   ```
+
+6. Close and Restart the development environment to apply schema changes:
+   ```bash
+   docker-compose -f docke-compose.dev.yml up --build
    ```
 
 The development API will be available at `http://localhost:3000`
