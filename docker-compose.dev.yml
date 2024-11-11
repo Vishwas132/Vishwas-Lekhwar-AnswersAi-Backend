@@ -1,0 +1,36 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=${NODE_ENV}
+      - DB_USERNAME=${DB_USERNAME}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_DATABASE=${DB_DATABASE}
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+      - DB_SCHEMA=${DB_SCHEMA}
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_REFRESH_SECRET=${JWT_REFRESH_SECRET}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+    depends_on:
+      - db
+    command: sh -c "npm run dev"
+
+  db:
+    image: postgres:14-alpine
+    environment:
+      - POSTGRES_USER=${DB_USERNAME}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_DATABASE}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:

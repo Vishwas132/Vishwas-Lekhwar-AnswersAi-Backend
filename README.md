@@ -7,9 +7,9 @@ A secure and scalable backend service built with Node.js, Express.js, and Postgr
 - RESTful API endpoints for user and question management
 - User authentication and authorization using JWT
 - PostgreSQL database with Sequelize ORM
-- AI-powered question answering (OpenAI/Anthropic integration)
+- AI-powered question answering (Anthropic integration)
 - Secure user registration and login flow
-- Docker containerization
+- Docker containerization with separate dev/prod configurations
 - Comprehensive error handling
 - Unit testing with Jest
 
@@ -28,15 +28,29 @@ answersai-backend/
 │   ├── config/           # Database and configuration files
 │   ├── middleware/       # Authentication and request middleware
 │   ├── migrations/       # Database migration scripts
-│   ├── models/           # Sequelize database models
-│   ├── routes/           # API route definitions
-│   └── server.js         # Main application entry point
-├── tests/                # Unit and integration tests
-├── Dockerfile            # Docker configuration
-└── docker-compose.yml    # Multi-container Docker setup
+│   ├── models/          # Sequelize database models
+│   ├── routes/          # API route definitions
+│   └── server.js        # Main application entry point
+├── tests/
+│   ├── middleware/      # Middleware tests
+│   ├── routes/         # Route tests
+│   └── test-utils.js   # Test utilities
+├── .dockerignore       # Docker ignore patterns
+├── .env.example        # Example environment variables
+├── .gitignore         # Git ignore patterns
+├── .sequelizerc       # Sequelize configuration
+├── docker-compose.dev.yml  # Development Docker configuration
+├── docker-compose.prod.yml # Production Docker configuration
+├── Dockerfile.dev      # Development Dockerfile
+├── Dockerfile.prod     # Production Dockerfile
+├── jest.config.js     # Jest test configuration
+├── package.json       # Project dependencies and scripts
+└── README.md          # Project documentation
 ```
 
 ## Quick Start with Docker
+
+### Development Environment
 
 1. Clone the repository
 2. Copy the example environment file:
@@ -45,31 +59,22 @@ answersai-backend/
    ```
 3. Update the `.env` file with your Anthropic API key and other configurations
 
-4. Build the Docker image:
-
+4. Start the development environment:
    ```bash
-   docker-compose build
+   docker-compose -f docker-compose.dev.yml up --build
    ```
 
-5. Start the services:
+The development API will be available at `http://localhost:3000`
 
+### Production Environment
+
+1. Ensure environment variables are properly configured
+2. Build and start the production environment:
    ```bash
-   docker-compose up --build
+   docker-compose -f docker-compose.prod.yml up --build
    ```
 
-6. Set up your PostgreSQL database
-
-   - Create the database schema:
-     ```bash
-     docker exec -it answersai-backend-db-1 psql -U postgres -d answersai_dev -c "CREATE SCHEMA IF NOT EXISTS answersai_dev;"
-     ```
-
-7. Close the Docker container from terminal and start it again:
-   ```bash
-   docker-compose up --build
-   ```
-
-The API will be available at `http://localhost:3000`
+The production API will be available at `http://localhost:8080`
 
 ## Manual Setup
 
@@ -79,41 +84,33 @@ The API will be available at `http://localhost:3000`
    npm install
    ```
 
-2. Set up your PostgreSQL database
+2. Set up your PostgreSQL database:
 
-   - Create the database using pgAdmin:
-     - Create a new database with the name `answersai_dev`
-     - Create a new schema with the name `answersai_dev` inside the `answersai_dev` database
+   - Create a new database with the name `answersai_dev`
+   - Create a new schema with the name `answersai_dev` inside the database
 
 3. Configure environment variables in `.env`:
 
    ```
-   PORT=3000
    NODE_ENV=development
 
    # Database Configuration
    DB_USERNAME=postgres
    DB_PASSWORD=postgres
-   DB_NAME=answersai_dev
+   DB_DATABASE=answersai_dev
    DB_HOST=localhost
+   DB_PORT=5432
+   DB_SCHEMA=answersai_dev
 
    # JWT Configuration
    JWT_SECRET=your-super-secret-jwt-key
    JWT_REFRESH_SECRET=your-super-secret-refresh-key
 
    # AI Service Configuration
-   OPENAI_API_KEY=your-openai-api-key
-   # Or
    ANTHROPIC_API_KEY=your-anthropic-api-key
    ```
 
-4. Run database migrations:
-
-   ```bash
-   npm run migrate
-   ```
-
-5. Start the server:
+4. Start the server:
 
    ```bash
    # Development
@@ -158,6 +155,28 @@ The API will be available at `http://localhost:3000`
 - Rate limiting
 - Protection against common web vulnerabilities
 - Secure environment configuration
+- Multi-stage Docker builds for production
+
+## Docker Configuration
+
+### Development Environment
+
+The development environment (`docker-compose.dev.yml` and `Dockerfile.dev`) includes:
+
+- Hot reloading with volume mounts
+- Full development dependencies
+- Exposed ports for debugging
+- PostgreSQL with persistent volume
+
+### Production Environment
+
+The production environment (`docker-compose.prod.yml` and `Dockerfile.prod`) includes:
+
+- Multi-stage builds for smaller image size
+- Production-only dependencies
+- Enhanced security configurations
+- Optimized PostgreSQL settings
+- Automatic restart policies
 
 ## Scalability Considerations
 
@@ -181,11 +200,11 @@ The API will be available at `http://localhost:3000`
 - Stateless JWT authentication
 - Horizontal scaling capability
 - Load balancer compatibility
-- Containerized deployment
+- Containerized deployment with Docker
 
 ## Testing
 
-Run the comprehensive test suite:
+Run the test suite:
 
 ```bash
 npm test
@@ -193,19 +212,37 @@ npm test
 
 Tests cover:
 
-- Middleware authentication
+- Authentication middleware
 - Route handlers
+- User operations
+- Question operations
 
 ## Deployment Strategies
 
-### Docker Deployment
+### Development Deployment
 
 ```bash
-# Build and run with docker-compose
-docker-compose up --build
+# Start development environment
+docker-compose -f docker-compose.dev.yml up --build
 
 # Run in detached mode
-docker-compose up -d
+docker-compose -f docker-compose.dev.yml up -d
+
+# View logs
+docker-compose -f docker-compose.dev.yml logs -f
+```
+
+### Production Deployment
+
+```bash
+# Start production environment
+docker-compose -f docker-compose.prod.yml up --build
+
+# Run in detached mode
+docker-compose -f docker-compose.prod.yml up -d
+
+# View logs
+docker-compose -f docker-compose.prod.yml logs -f
 ```
 
 ### Production Recommendations
@@ -216,10 +253,38 @@ docker-compose up -d
 - Configure SSL/TLS
 - Regular database backups
 - Implement CI/CD pipeline
+- Use container orchestration (e.g., Kubernetes)
+- Implement health checks
+- Set up proper monitoring and logging
 
 ## Troubleshooting
 
-- Ensure all environment variables are correctly set
-- Check database connection parameters
-- Verify API key for AI service
-- Review Docker and docker-compose configurations
+Common issues and solutions:
+
+1. Database Connection Issues
+
+   - Verify database credentials in .env
+   - Ensure PostgreSQL service is running
+   - Check database host and port settings
+   - Verify schema exists
+
+2. Docker Issues
+
+   - Ensure Docker daemon is running
+   - Check Docker logs for detailed errors
+   - Verify port availability
+   - Check volume permissions
+
+3. API Key Issues
+
+   - Verify Anthropic API key is valid
+   - Check API key permissions
+   - Ensure environment variables are loaded
+
+4. Development Environment
+   - Clear node_modules and reinstall
+   - Rebuild Docker containers
+   - Check for port conflicts
+   - Verify file permissions
+
+For any other issues, check the application logs and Docker container logs for detailed error messages.

@@ -1,6 +1,13 @@
-node_modules;
-npm - debug.log.git.gitignore.env.env.example;
-docker - compose.yml;
-Dockerfile;
-README.md;
-tests;
+node_modules
+npm-debug.log
+.git
+.gitignore
+.env
+.env.example
+docker-compose*
+Dockerfile*
+README.md
+tests
+dist
+coverage
+.vscode
